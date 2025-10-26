@@ -1,0 +1,46 @@
+{
+    "vacancy_id": 0,
+
+    "experience": 1,
+    "experience_weight": 0.5,
+
+    "work_format": ["Удалённо","Гибрид"],
+    "work_format_weight": 0.8,
+
+    "work_schedule": ["5/2","Свободный"],
+    "work_schedule_weight": 0.6,
+
+    "employment": ["Полная","Проектная"],
+    "employment_weight": 0.9,
+
+    "work_time_min": 30,
+    "work_time_max": 40,
+    "work_time_weight": 0.7,
+
+    "responsibilities": {
+        "Коммуникация с партнёрами": 1,
+        "Отчётность": 2,
+        "Разработка": 2
+    },
+    "responsibilities_weight": 0.85,
+
+    "salary_min": 50000,
+    "salary_max": 120000,
+    "salary_weight": 0.75,
+
+    "hard_skills": {
+        "Docker": 1,
+        "Go": 2,
+        "SQL": 1
+    },
+    "hard_skills_weight": 0.9,
+
+    "soft_skills": ["Коммуникация","Работа в команде","Инициативность"],
+    "soft_skills_weight": 0.6,
+
+    "business_trips":true,
+    "business_trips_weight": 0.4,
+
+    "education": true,
+    "education_weight": 0.3
+}

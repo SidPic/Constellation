@@ -1,0 +1,26 @@
+{
+    "id": 0,
+    "vacancy_id": 0
+    "name": "Имя",
+    "surname": "Фамилия",
+    "experience": 3,
+    "work_format": ["Офис","Удалённо","Гибрид"],
+    "work_schedule": ["5/2"],
+    "employment": ["Частичная","Стажировка"],
+    "work_time_min": 4,
+    "work_time_max": 8,
+    "responsibilities": {
+        "Пылесосить сервер": 2,
+        "Чистить зубы": 1
+    },
+    "salary_min": 100000,
+    "salary_max": 500000,
+    "hard_skills": {
+        "C++": 2,
+        "Linux администрирование": 1,
+        "SQL": 2
+    },
+    "soft_skills": ["коммуникабельность","внимательность","ответственность"],
+    "business_trips": false,
+    "education": true
+}
