@@ -29,11 +29,11 @@ long_line_column=72
 
 [files]
 current_page=1
-FILE_NAME_0=386;Go;0;EUTF-8;0;1;0;%2Fhome%2Fsid%2Fпроекты%2Fconstellation%2Fcmd%2Fweb%2Fmain.go;0;4
-FILE_NAME_1=7029;Go;0;EUTF-8;0;1;0;%2Fhome%2Fsid%2Fпроекты%2Fconstellation%2Fcmd%2Fweb%2Fhandlers.go;0;4
-FILE_NAME_2=1009;Go;0;EUTF-8;0;1;0;%2Fhome%2Fsid%2Fпроекты%2Fconstellation%2Fcmd%2Fweb%2Fresume.go;0;4
-FILE_NAME_3=2963;Go;0;EUTF-8;0;1;0;%2Fhome%2Fsid%2Fпроекты%2Fconstellation%2Fcmd%2Fweb%2Fvacancy.go;0;4
-FILE_NAME_4=0;JSON;0;EUTF-8;0;1;0;%2Fhome%2Fsid%2Fпроекты%2Fconstellation%2Fexample.json;0;4
+FILE_NAME_0=296;Go;0;EUTF-8;0;1;0;%2Fhome%2Fsid%2Fпроекты%2Fconstellation%2Fcmd%2Fweb%2Fmain.go;0;4
+FILE_NAME_1=170;Go;0;EUTF-8;0;1;0;%2Fhome%2Fsid%2Fпроекты%2Fconstellation%2Fcmd%2Fweb%2Fhandlers.go;0;4
+FILE_NAME_2=2410;Go;0;EUTF-8;0;1;0;%2Fhome%2Fsid%2Fпроекты%2Fconstellation%2Fcmd%2Fweb%2Fresume.go;0;4
+FILE_NAME_3=2250;Go;0;EUTF-8;0;1;0;%2Fhome%2Fsid%2Fпроекты%2Fconstellation%2Fcmd%2Fweb%2Fvacancy.go;0;4
+FILE_NAME_4=787;JSON;0;EUTF-8;0;1;0;%2Fhome%2Fsid%2Fпроекты%2Fconstellation%2Fexample.json;0;4
 FILE_NAME_5=1072;JSON;0;EUTF-8;0;1;0;%2Fhome%2Fsid%2Fпроекты%2Fconstellation%2Fexample_vacancy.json;0;4
 
 [VTE]

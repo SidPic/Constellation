@@ -6,30 +6,69 @@ import (
     "slices"
     "math"
     "sort"
+    "io"
+    "encoding/json"
+    "bytes"
+    "log"
 )
 
 // Приём резюме, запись в БД
 func resumeHandler(c echo.Context) (err error) {
-    resume := new(ResumeFormated)
-    if err := c.Bind(resume); err != nil {
-        return c.String(http.StatusBadRequest, "bad request")
+
+    // читаем тело (можно ограничить размер через io.LimitReader при необходимости)
+    b, err := io.ReadAll(c.Request().Body)
+    if err != nil {
+        return c.String(http.StatusBadRequest, "cannot read request body")
+    }
+    // валидируем JSON
+    if !json.Valid(b) {
+        return c.String(http.StatusBadRequest, "invalid json")
     }
 
-    resume.addToDB()
+    // компактная запись (удаляет лишние пробелы)
+    var dst bytes.Buffer
+    if err := json.Compact(&dst, b); err != nil {
+    // на случай редкой ошибки компактизации — вернуть 400
+        return c.String(http.StatusBadRequest, "cannot compact json: "+err.Error())
+    }
 
-    return c.JSON(http.StatusOK, resume)
+    // Вставка в БД: placeholder должен быть без кавычек ($1), передаём []byte или string
+    result, err := db.Exec("INSERT INTO resumes_jsonb (resume) VALUES ($1)", dst.Bytes())
+    if err != nil {
+        return c.String(http.StatusInternalServerError, "couldn't insert resume into database: "+err.Error())
+    }
+
+    rowsAffected, _ := result.RowsAffected()
+    return c.String(http.StatusOK, strconv.FormatInt(rowsAffected, 10))
 }
 
 // Приём вакансии, запись в БД
 func vacancyHandler(c echo.Context) (err error) {
-    vacancy := new(VacancyFormated)
-    if err := c.Bind(vacancy); err != nil {
-        return c.String(http.StatusBadRequest, "bad request")
+    // читаем тело (можно ограничить размер через io.LimitReader при необходимости)
+    b, err := io.ReadAll(c.Request().Body)
+    if err != nil {
+        return c.String(http.StatusBadRequest, "cannot read request body")
+    }
+    // валидируем JSON
+    if !json.Valid(b) {
+        return c.String(http.StatusBadRequest, "invalid json")
     }
 
-    vacancy.addToDB()
+    // компактная запись (удаляет лишние пробелы)
+    var dst bytes.Buffer
+    if err := json.Compact(&dst, b); err != nil {
+    // на случай редкой ошибки компактизации — вернуть 400
+        return c.String(http.StatusBadRequest, "cannot compact json: "+err.Error())
+    }
 
-    return c.JSON(http.StatusOK, vacancy)
+    // Вставка в БД: placeholder должен быть без кавычек ($1), передаём []byte или string
+    result, err := db.Exec("INSERT INTO vacancies_jsonb (vacancy) VALUES ($1)", dst.Bytes())
+    if err != nil {
+        return c.String(http.StatusInternalServerError, "couldn't insert vacancy into database: "+err.Error())
+    }
+
+    rowsAffected, _ := result.RowsAffected()
+    return c.String(http.StatusOK, strconv.FormatInt(rowsAffected, 10))
 }
 
 // Отправка данных на дашборд
@@ -46,30 +85,64 @@ func dashboardHandler(c echo.Context) (err error) {
 
     vacancy := new(VacancyFormated)
     vacancy.VacancyID = vacancy_id
-    vacancy.getFromDB()
+
+    // получение вакансии
+
+    row := db.QueryRow("SELECT vacancy FROM vacancies_jsonb WHERE vacancy @> jsonb_build_object('vacancy_id', $1::int)", vacancy_id)
+    var v_json_raw []byte
+    err = row.Scan(&v_json_raw)
+    if err != nil{
+        log.Println(err.Error())
+    }
+    err = json.Unmarshal(v_json_raw, &vacancy)
+    if err != nil{
+        log.Println(err.Error())
+    }
+
+    // получение резюме
 
     var resumes []ResumeFormated
 
-    // ТУТА МЫ ЗАПРАШИВАЕМ ДАННЫЕ ИЗ БД, а именно:
-    //  нужно получить все резюме, у которых ID = vacancy_id
-    //  и записать это всё безобразие в массив resumes
+    rows, err := db.Query("SELECT resume FROM resumes_jsonb WHERE resume @> jsonb_build_object('vacancy_id', $1::int)", vacancy_id)
+    if err != nil {
+        return c.String(http.StatusInternalServerError, "couldn't get resumes from database: "+err.Error())
+    }
+    defer rows.Close()
+
+    rows_number := 0
+    for rows.Next(){
+        var json_raw []byte
+        err := rows.Scan(&json_raw)
+        if err != nil{
+            log.Println(err.Error())
+            continue
+        }
+        resume := ResumeFormated{}
+        err = json.Unmarshal(json_raw, &resume)
+        if err != nil{
+            log.Println(err.Error())
+            continue
+        }
+        resumes = append(resumes, resume)
+        rows_number++
+    }
 
     type ResumeDashboard struct {
-        Name                string
-        Surname             string
-        Rating              int     // от 0 до 100
-        MatchWithVacancy    int     // от 0 до 100
-        Experience          int
-        WorkFormat          []string
-        WorkSchedule        []string
-        Employment          []string
-        WorkTime            string
-        Responsibilities    map[string]int
-        Salary              string
-        HardSkills          map[string]int
-        SoftSkills          []string
-        BusinessTrips       bool
-        Education           bool
+        Name                string      `json:"Name"`
+        Surname             string      `json:"Surname"`
+        Rating              int         `json:"Rating"`
+        MatchWithVacancy    int         `json:"MatchWithVacancy"`
+        Experience          int         `json:"Experience"`
+        WorkFormat          []string    `json:"WorkFormat"`
+        WorkSchedule        []string    `json:"WorkSchedule"`
+        Employment          []string    `json:"Employment"`
+        WorkTime            string      `json:"WorkTime"`
+        Responsibilities    map[string]int `json"Responsibilities"`
+        Salary              string      `json:"Salary"`
+        HardSkills          map[string]int `json:"HardSkills"`
+        SoftSkills          []string    `json:"SoftSkills"`
+        BusinessTrips       bool        `json:"BusinessTrips"`
+        Education           bool        `json:"Education"`
     }
 
     resumesForDashboard := make([]ResumeDashboard, 0, len(resumes))
@@ -184,11 +257,11 @@ func dashboardHandler(c echo.Context) (err error) {
     }
 
     type DashboardResponse struct {
-        resumes []ResumeDashboard   `json:"resumes"`
+        Resumes []ResumeDashboard   `json:"resumes"`
     }
 
     response := DashboardResponse{
-        resumes: resumesForDashboard[:topN],
+        Resumes: resumesForDashboard[:int(math.Min(float64(topN), float64(rows_number)))],
     }
 
     return c.JSON(http.StatusOK, response)
